@@ -11,30 +11,18 @@ const STORAGE_KEY_PRODUCTS = "inventory_management_products";
 const STORAGE_KEY_CART = "inventory_management_cart";
 
 function App() {
-  const [products, setProducts] = useState([]);
-  const [cart, setCart] = useState([]);
-  const [isCartOpen, setIsCartOpen] = useState(false);
-
-  useEffect(() => {
-    // Load products from local storage on component mount
+  const [products, setProducts] = useState(() => {
     const storedProducts =
       JSON.parse(localStorage.getItem(STORAGE_KEY_PRODUCTS)) || [];
-    setProducts(storedProducts);
+    return storedProducts;
+  });
 
-    // Load cart from local storage on component mount
+  const [cart, setCart] = useState(() => {
     const storedCart = JSON.parse(localStorage.getItem(STORAGE_KEY_CART)) || [];
-    setCart(storedCart);
-  }, []);
+    return storedCart;
+  });
 
-  useEffect(() => {
-    // Save products to local storage whenever products change
-    localStorage.setItem(STORAGE_KEY_PRODUCTS, JSON.stringify(products));
-  }, [products]);
-
-  useEffect(() => {
-    // Save cart to local storage whenever cart changes
-    localStorage.setItem(STORAGE_KEY_CART, JSON.stringify(cart));
-  }, [cart]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
 
   const addProduct = (product) => {
     setProducts([...products, { ...product, id: products.length + 1 }]);
@@ -126,6 +114,15 @@ function App() {
   const closeCart = () => {
     setIsCartOpen(false);
   };
+  useEffect(() => {
+    // Save products to local storage whenever products change
+    localStorage.setItem(STORAGE_KEY_PRODUCTS, JSON.stringify(products));
+  }, [products]);
+
+  useEffect(() => {
+    // Save cart to local storage whenever cart changes
+    localStorage.setItem(STORAGE_KEY_CART, JSON.stringify(cart));
+  }, [cart]);
 
   return (
     <div>
