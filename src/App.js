@@ -1,13 +1,40 @@
 // App.js
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ProductForm from "./components/ProductForm";
 import ProductListItem from "./components/ProductListItem";
 import CartItem from "./components/CartItem";
+import CartButton from "./components/CartButton";
+import Cart from "./components/Cart";
+
+const STORAGE_KEY_PRODUCTS = "inventory_management_products";
+const STORAGE_KEY_CART = "inventory_management_cart";
 
 function App() {
   const [products, setProducts] = useState([]);
   const [cart, setCart] = useState([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+
+  useEffect(() => {
+    // Load products from local storage on component mount
+    const storedProducts =
+      JSON.parse(localStorage.getItem(STORAGE_KEY_PRODUCTS)) || [];
+    setProducts(storedProducts);
+
+    // Load cart from local storage on component mount
+    const storedCart = JSON.parse(localStorage.getItem(STORAGE_KEY_CART)) || [];
+    setCart(storedCart);
+  }, []);
+
+  useEffect(() => {
+    // Save products to local storage whenever products change
+    localStorage.setItem(STORAGE_KEY_PRODUCTS, JSON.stringify(products));
+  }, [products]);
+
+  useEffect(() => {
+    // Save cart to local storage whenever cart changes
+    localStorage.setItem(STORAGE_KEY_CART, JSON.stringify(cart));
+  }, [cart]);
 
   const addProduct = (product) => {
     setProducts([...products, { ...product, id: products.length + 1 }]);
@@ -92,6 +119,14 @@ function App() {
     );
   };
 
+  const openCart = () => {
+    setIsCartOpen(true);
+  };
+
+  const closeCart = () => {
+    setIsCartOpen(false);
+  };
+
   return (
     <div>
       <ProductForm addProduct={addProduct} />
@@ -105,17 +140,15 @@ function App() {
           />
         ))}
       </ul>
-      <h2>Cart</h2>
-      <ul>
-        {cart.map((item, index) => (
-          <CartItem
-            key={index}
-            item={item}
-            incrementQuantity={incrementQuantity}
-            decrementQuantity={decrementQuantity}
-          />
-        ))}
-      </ul>
+      <CartButton cart={cart} openCart={openCart} />
+      {isCartOpen && (
+        <Cart
+          cart={cart}
+          incrementQuantity={incrementQuantity}
+          decrementQuantity={decrementQuantity}
+          closeCart={closeCart}
+        />
+      )}
     </div>
   );
 }
